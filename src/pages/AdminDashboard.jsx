@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../axios';
-import { Users, Package, Flag, ShieldCheck, Crown, Ban, CheckCircle2, Trash2, Loader2, Target, Settings, Save, Coins, X, Eye, ExternalLink, AlertTriangle } from 'lucide-react';
+import {User ,Users, Package, Flag, ShieldCheck, Crown, Ban, CheckCircle2, Trash2, Loader2, Target, Settings, Save, Coins, X, Eye, ExternalLink, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
@@ -259,26 +259,84 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* قسم طلبات الشراء */}
+{/* ======= 📦 قسم طلبات الشراء (التأمين ضد الأوبجيكتات القاتلة) ======= */}
       {activeTab === 'requests' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {requestsList?.length === 0 ? (
-            <div className="col-span-full text-center py-16 bg-white rounded-3xl border border-gray-100 text-gray-400 font-bold text-sm shadow-sm">لا توجد أي طلبات حالياً! ✨</div>
+          {Array.isArray(requestsList) && requestsList.length > 0 ? (
+            requestsList.map((req, index) => {
+              // 1. تفادي الطلبات الفارغة
+              if (!req) return null;
+
+              // 2. تأمين المفتاح (ID)
+              const requestId = req._id || req.id || `fallback-id-${index}`;
+
+              // 3. 🛑 التأمين الصارم للميزانية (محاربة أوبجيكتات الداتابيز)
+              let safeBudget = 0;
+              if (req.maxBudget !== undefined && req.maxBudget !== null) {
+                safeBudget = typeof req.maxBudget === 'object' ? (req.maxBudget.$numberDecimal || 0) : req.maxBudget;
+              } else if (req.budget !== undefined && req.budget !== null) {
+                safeBudget = typeof req.budget === 'object' ? (req.budget.$numberDecimal || 0) : req.budget;
+              }
+
+              // 4. 🛑 التأمين الصارم للعنوان والتصنيف
+              const safeTitle = typeof req.title === 'string' ? req.title : 'طلب جديد';
+              const safeCategory = typeof req.category === 'string' ? req.category : 'عام';
+
+              // 5. 🛑 التأمين الصارم لاسم المشتري
+              let buyerName = 'مشتري مجهول';
+              if (req.buyer && typeof req.buyer === 'object') {
+                buyerName = typeof req.buyer.username === 'string' ? req.buyer.username : 'مشتري';
+              } else if (typeof req.buyer === 'string') {
+                buyerName = 'مشتري';
+              }
+
+              return (
+                <div key={requestId} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm text-right flex flex-col justify-between min-h-[160px]">
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md">
+                        {safeCategory}
+                      </span>
+                      <button 
+                        onClick={() => setConfirmModal({ 
+                          isOpen: true, 
+                          type: 'REQUEST', 
+                          id: requestId, 
+                          title: 'مسح الطلب من السوق', 
+                          message: 'هل أنت متأكد من رغبتك في إلغاء هذا الطلب وإزالته نهائياً؟' 
+                        })} 
+                        className="text-red-400 hover:text-red-600 bg-red-50 p-1.5 rounded-lg transition"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                    
+                    <h3 className="font-black text-gray-900 text-sm mb-1 truncate">
+                      {safeTitle}
+                    </h3>
+                    
+                    <p className="text-xs font-bold text-gray-500 mb-3 flex items-center justify-start gap-1">
+                      <User className="h-3 w-3 text-gray-400" /> 
+                      <span>صاحب الطلب: </span>
+                      <span className="text-neutral-800 font-black">{buyerName}</span>
+                    </p>
+                  </div>
+                  
+                  <div className="flex justify-between items-center border-t border-gray-50 pt-3 mt-auto">
+                    <span className="text-[11px] font-black text-green-600 flex items-center gap-1">
+                      <Coins className="h-3 w-3" /> الميزانية: {safeBudget} درهم
+                    </span>
+                    <Link to={`/request/${requestId}`} className="text-[10px] font-black text-neutral-900 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-neutral-900 hover:text-white transition">
+                      تفاصيل الطلب
+                    </Link>
+                  </div>
+                </div>
+              );
+            })
           ) : (
-            requestsList?.map(req => (
-              <div key={req._id} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm text-right">
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md">{req.category || 'عام'}</span>
-                  <button onClick={() => setConfirmModal({ isOpen: true, type: 'REQUEST', id: req._id, title: 'مسح الطلب من السوق', message: 'هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟' })} className="text-red-400 hover:text-red-600 bg-red-50 p-1.5 rounded-lg transition"><Trash2 className="h-3.5 w-3.5" /></button>
-                </div>
-                <h3 className="font-black text-gray-900 text-sm mb-1">{req.title}</h3>
-                <p className="text-xs font-bold text-gray-500 mb-3 flex items-center justify-start gap-1"><User className="h-3 w-3" /> صاحب الطلب: {req.buyer?.username || 'مشتري'}</p>
-                <div className="flex justify-between items-center border-t border-gray-50 pt-3">
-                  <span className="text-[11px] font-black text-green-600 flex items-center gap-1"><Coins className="h-3 w-3" /> الميزانية: {req.maxBudget} درهم</span>
-                  <Link to={`/request/${req._id}`} className="text-[10px] font-black text-neutral-900 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-neutral-900 hover:text-white transition">تفاصيل الطلب</Link>
-                </div>
-              </div>
-            ))
+            <div className="col-span-full text-center py-16 bg-white rounded-3xl border border-gray-100 text-gray-400 font-bold text-sm shadow-sm">
+              لا توجد أي طلبات حالياً! ✨
+            </div>
           )}
         </div>
       )}
