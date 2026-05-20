@@ -107,11 +107,15 @@ const AdminDashboard = () => {
     setSavingSettings(true);
     try {
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
-      await axios.axiosInstance.put('/api/admin/settings', settingsData, config);
-      toast.success('تم حفظ الإعدادات بنجاح!');
+      // 👑 تم إصلاح الغلط القاتل هنا من axios.axiosInstance إلى axiosInstance المباشر
+      await axiosInstance.put('/api/admin/settings', settingsData, config);
+      toast.success('تم حفظ الإعدادات بنجاح! ✨');
       window.dispatchEvent(new Event('settingsUpdated'));
-    } catch (error) { toast.error('فشل حفظ الإعدادات'); } 
-    finally { setSavingSettings(false); }
+    } catch (error) { 
+      toast.error('فشل حفظ الإعدادات، تأكد من مسارات الباكاند.'); 
+    } finally { 
+      setSavingSettings(false); 
+    }
   };
 
   const handleChargeCoins = async (e) => {
@@ -143,7 +147,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* الإحصائيات المخصصة للهواتف والحواسب */}
+      {/* الإحصائيات المخصصة */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
         <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center">
           <Users className="h-6 w-6 text-blue-500 mb-1" />
@@ -239,7 +243,7 @@ const AdminDashboard = () => {
           {productsList?.map(p => (
             <div key={p._id} className="bg-white rounded-2xl border border-gray-100 p-3 shadow-sm flex items-center gap-3 relative">
               <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden shrink-0">
-                {p.images && p.images[0] && <img src={p.images[0]} className="w-full h-full object-cover"/>}
+                {p.images && p.images[0] && <img src={p.images[0]} className="w-full h-full object-cover" alt="Product Thumbnail" />}
               </div>
               <div className="flex-1 overflow-hidden text-right">
                 <div className="font-black text-gray-900 text-xs truncate mb-1">{p.title}</div>
@@ -255,7 +259,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* 🔥 قسم طلبات الشراء المحمي (تعديل جذري وحل للمشكلة) */}
+      {/* قسم طلبات الشراء */}
       {activeTab === 'requests' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {requestsList?.length === 0 ? (
@@ -279,7 +283,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* 🔥 قسم الشكاوى والبلاغات المحمي (تعديل جذري وحل للمشكلة) */}
+      {/* قسم الشكاوى والبلاغات */}
       {activeTab === 'reports' && (
         <div className="space-y-3">
           {reportsList?.length === 0 ? (
@@ -311,7 +315,7 @@ const AdminDashboard = () => {
 
                 <div className="flex items-center justify-end gap-2 shrink-0 border-t border-red-100 md:border-0 pt-3 md:pt-0">
                   <button onClick={() => setConfirmModal({ isOpen: true, type: 'REPORT', id: report._id, action: 'dismiss', title: 'تجاهل البلاغ', message: 'هل أنت متأكد من رغبتك في تجاهل هذا البلاغ وإغلاقه بشكل ودي؟' })} className="bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 text-[11px] font-black px-4 py-2.5 rounded-xl transition shadow-sm flex-1 md:flex-none">تجاهل البلاغ</button>
-                  <button onClick={() => setConfirmModal({ isOpen: true, type: 'REPORT', id: report._id, action: 'delete_target', title: 'حذف العنصر المخالف', message: 'سيتم مسح هذا العنصر بشكل نهائي وصارم من السيرفر كإجراء عقابي، هل توافق؟' })} className="bg-red-600 hover:bg-red-700 text-white text-[11px] font-black px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-md flex-1 md:flex-none"><Trash2 className="h-3.5 w-3.5" /> مسح المخالف</button>
+                  <button onClick={() => setConfirmModal({ isOpen: true, type: 'REPORT', id: report._id, action: 'delete_target', title: 'حذف العنصر المخالف', message: 'سيتم مسح هذا العنصر بشكل نهائي وصارع من السيرفر كإجراء عقابي، هل توافق؟' })} className="bg-red-600 hover:bg-red-700 text-white text-[11px] font-black px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-md flex-1 md:flex-none"><Trash2 className="h-3.5 w-3.5" /> مسح المخالف</button>
                 </div>
               </div>
             ))
