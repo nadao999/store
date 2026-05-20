@@ -2,7 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { SettingsContext } from '../context/SettingsContext';
 import { AuthContext } from '../context/AuthContext';
-import axiosInstance from 'axios'; 
+// 👑 تم إصلاح المسار هنا والنداء على الملف المركزي الذكي لي صاوبنا
+import axiosInstance from '../axios'; 
 import { Phone, ShieldCheck, Clock, Loader2, ArrowRight, Tag, Crown, ChevronLeft, ChevronRight, Star, MessageSquareText, Flag, X, Handshake, Send, Heart, FileText, ChevronDown, Store } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -148,7 +149,7 @@ const ProductDetails = () => {
   const handleSendOffer = async (e) => {
     e.preventDefault();
     if (user?.isEmailVerified === false) {
-    return toast.error('يرجى تفعيل بريدك الإلكتروني للقيام بهذا الإجراء!');
+      return toast.error('يرجى تفعيل بريدك الإلكتروني للقيام بهذا الإجراء!');
     }
     if (!user) {
       toast.error('يجب عليك تسجيل الدخول لتقديم عرض مالي!');
@@ -283,7 +284,6 @@ const ProductDetails = () => {
       <div className="bg-white p-4 border-y border-gray-100 shadow-sm">
         <div className="bg-gray-50/70 border border-gray-100 rounded-2xl p-3.5 flex items-center justify-between">
           <Link to={`/vendor/${vendor?._id || vendor?.id}`} className="flex items-center gap-3 flex-1 min-w-0">
-            {/* 🔥 الأفاتار الذكي */}
             <div className="w-12 h-12 rounded-xl bg-white border-2 border-white shadow-md overflow-hidden flex items-center justify-center font-black text-gray-400 shrink-0">
               <img 
                 src={vendor?.avatar && vendor.avatar !== 'null' && vendor.avatar !== '' ? vendor.avatar : `https://ui-avatars.com/api/?name=${vendor?.storeName || vendor?.username || 'U'}&background=F3F4F6&color=9CA3AF&bold=true`} 
